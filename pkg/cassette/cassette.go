@@ -25,18 +25,11 @@
 package cassette
 
 import (
-	"bytes"
 	"errors"
-	"fmt"
-	"io"
 	"net/http"
 	"net/url"
-	"reflect"
-	"strings"
 	"sync"
 	"time"
-
-	"go.yaml.in/yaml/v4"
 )
 
 const (
@@ -135,62 +128,23 @@ type Interaction struct {
 // WasReplayed returns a boolean indicating whether the given interaction was
 // already replayed.
 func (i *Interaction) WasReplayed() bool {
-	return i.replayed
+	_ = "STUB: not implemented"
+
+	// GetHTTPRequest converts the recorded interaction request to http.Request
+	// instance.
+	return false
 }
 
-// GetHTTPRequest converts the recorded interaction request to http.Request
-// instance.
 func (i *Interaction) GetHTTPRequest() (*http.Request, error) {
-	url, err := url.Parse(i.Request.URL)
-	if err != nil {
-		return nil, err
-	}
-
-	req := &http.Request{
-		Proto:            i.Request.Proto,
-		ProtoMajor:       i.Request.ProtoMajor,
-		ProtoMinor:       i.Request.ProtoMinor,
-		ContentLength:    i.Request.ContentLength,
-		TransferEncoding: i.Request.TransferEncoding,
-		Trailer:          i.Request.Trailer,
-		Host:             i.Request.Host,
-		RemoteAddr:       i.Request.RemoteAddr,
-		RequestURI:       i.Request.RequestURI,
-		Body:             io.NopCloser(strings.NewReader(i.Request.Body)),
-		Form:             i.Request.Form,
-		Header:           i.Request.Headers,
-		URL:              url,
-		Method:           i.Request.Method,
-	}
-
-	return req, nil
+	_ = "STUB: not implemented"
+	return nil, nil
 }
 
 // GetHTTPResponse converts the recorded interaction response to http.Response
 // instance.
 func (i *Interaction) GetHTTPResponse() (*http.Response, error) {
-	req, err := i.GetHTTPRequest()
-	if err != nil {
-		return nil, err
-	}
-
-	resp := &http.Response{
-		Status:           i.Response.Status,
-		StatusCode:       i.Response.Code,
-		Proto:            i.Response.Proto,
-		ProtoMajor:       i.Response.ProtoMajor,
-		ProtoMinor:       i.Response.ProtoMinor,
-		TransferEncoding: i.Response.TransferEncoding,
-		Trailer:          i.Response.Trailer,
-		ContentLength:    i.Response.ContentLength,
-		Uncompressed:     i.Response.Uncompressed,
-		Body:             io.NopCloser(strings.NewReader(i.Response.Body)),
-		Header:           i.Response.Headers,
-		Close:            true,
-		Request:          req,
-	}
-
-	return resp, nil
+	_ = "STUB: not implemented"
+	return nil, nil
 }
 
 // MatcherFunc is a predicate, which returns true when the actual request
@@ -214,156 +168,47 @@ type DefaultMatcherOption func(m *defaultMatcher)
 // WithIgnoreUserAgent is a [DefaultMatcherOption], which configures the default
 // matcher to ignore matching on the User-Agent HTTP header.
 func WithIgnoreUserAgent() DefaultMatcherOption {
-	opt := func(m *defaultMatcher) {
-		m.ignoreHeaders = append(m.ignoreHeaders, "User-Agent")
-	}
-
-	return opt
+	_ = "STUB: not implemented"
+	return *new(DefaultMatcherOption)
 }
 
 // WithIgnoreAuthorization is a [DefaultMatcherOption], which configures the default
 // matcher to ignore matching on the Authorization HTTP header.
 func WithIgnoreAuthorization() DefaultMatcherOption {
-	opt := func(m *defaultMatcher) {
-		m.ignoreHeaders = append(m.ignoreHeaders, "Authorization")
-	}
-
-	return opt
+	_ = "STUB: not implemented"
+	return *new(DefaultMatcherOption)
 }
 
 // WithIgnoreHeaders is a [DefaultMatcherOption], which configures the default
 // matcher to ignore matching on the defined HTTP headers.
 func WithIgnoreHeaders(val ...string) DefaultMatcherOption {
-	opt := func(m *defaultMatcher) {
-		m.ignoreHeaders = append(m.ignoreHeaders, val...)
-	}
-
-	return opt
+	_ = "STUB: not implemented"
+	return *new(DefaultMatcherOption)
 }
 
 // NewDefaultMatcher returns the default matcher.
 func NewDefaultMatcher(opts ...DefaultMatcherOption) MatcherFunc {
-	m := &defaultMatcher{}
-	for _, opt := range opts {
-		opt(m)
-	}
-
-	return m.matcher
+	_ = "STUB: not implemented"
+	return *new(MatcherFunc)
 }
 
 // Similar to reflect.DeepEqual, but considers the contents of collections, so
 // {} and nil would be considered equal. works with Array, Map, Slice, or
 // pointer to Array.
-func (m *defaultMatcher) deepEqualContents(x, y any) bool {
-	if reflect.ValueOf(x).IsNil() {
-		if reflect.ValueOf(y).IsNil() {
-			return true
-		} else {
-			return reflect.ValueOf(y).Len() == 0
-		}
-	} else {
-		if reflect.ValueOf(y).IsNil() {
-			return reflect.ValueOf(x).Len() == 0
-		} else {
-			return reflect.DeepEqual(x, y)
-		}
-	}
-}
+func (m *defaultMatcher) deepEqualContents(x, y any) bool { _ = "STUB: not implemented"; return false }
 
 // bodyMatches is a predicate which tests whether the bodies of the given HTTP
 // request and interaction request match.
 func (m *defaultMatcher) bodyMatches(r *http.Request, i Request) bool {
-	if r.Body != nil {
-		var buffer bytes.Buffer
-		if _, err := buffer.ReadFrom(r.Body); err != nil {
-			return false
-		}
-
-		r.Body = io.NopCloser(bytes.NewBuffer(buffer.Bytes()))
-		if buffer.String() != i.Body {
-			return false
-		}
-	} else {
-		if len(i.Body) != 0 {
-			return false
-		}
-	}
-
-	return true
+	_ = "STUB: not implemented"
+	return false
 }
 
 // matcher is a predicate which matches the provided HTTP request again a
 // recorded interaction request.
 func (m *defaultMatcher) matcher(r *http.Request, i Request) bool {
-	if r.Method != i.Method {
-		return false
-	}
-
-	if r.URL.String() != i.URL {
-		return false
-	}
-
-	if r.Proto != i.Proto {
-		return false
-	}
-
-	if r.ProtoMajor != i.ProtoMajor {
-		return false
-	}
-
-	if r.ProtoMinor != i.ProtoMinor {
-		return false
-	}
-
-	requestHeader := r.Header.Clone()
-	cassetteRequestHeaders := i.Headers.Clone()
-
-	for _, header := range m.ignoreHeaders {
-		delete(requestHeader, header)
-		delete(cassetteRequestHeaders, header)
-	}
-
-	if !m.deepEqualContents(requestHeader, cassetteRequestHeaders) {
-		return false
-	}
-
-	if !m.bodyMatches(r, i) {
-		return false
-	}
-
-	if r.ContentLength != i.ContentLength {
-		return false
-	}
-
-	if !m.deepEqualContents(r.TransferEncoding, i.TransferEncoding) {
-		return false
-	}
-
-	if r.Host != i.Host {
-		return false
-	}
-
-	if err := r.ParseForm(); err != nil {
-		return false
-	}
-
-	if !m.deepEqualContents(r.Form, i.Form) {
-		return false
-	}
-
-	if !m.deepEqualContents(r.Trailer, i.Trailer) {
-		return false
-	}
-
-	if r.RemoteAddr != i.RemoteAddr {
-		return false
-	}
-
-	if r.RequestURI != i.RequestURI {
-		return false
-	}
-
-	return true
+	_ = "STUB: not implemented"
+	return false
 }
 
 // DefaultMatcher is the default matcher used to match HTTP requests with
@@ -405,115 +250,46 @@ type Cassette struct {
 }
 
 // New creates a new empty cassette
-func New(name string) *Cassette {
-	c := &Cassette{
-		Name:                   name,
-		File:                   fmt.Sprintf("%s.yaml", name),
-		Version:                CassetteFormatVersion,
-		Interactions:           make([]*Interaction, 0),
-		Matcher:                DefaultMatcher,
-		ReplayableInteractions: false,
-		IsNew:                  true,
-		nextInteractionId:      0,
-	}
-
-	return c
-}
+func New(name string) *Cassette { _ = "STUB: not implemented"; return nil }
 
 // Load reads a cassette file from disk
-func Load(name string) (*Cassette, error) {
-	return LoadWithFS(name, NewDiskFS())
-}
+func Load(name string) (*Cassette, error) { _ = "STUB: not implemented"; return nil, nil }
 
 // Load reads a cassette file from disk
-func LoadWithFS(name string, fs FS) (*Cassette, error) {
-	c := New(name)
-	data, err := fs.ReadFile(c.File)
-	if err != nil {
-		return nil, err
-	}
-
-	c.IsNew = false
-	if err := yaml.Unmarshal(data, c); err != nil {
-		return nil, err
-	}
-
-	if c.Version != CassetteFormatVersion {
-		return nil, fmt.Errorf("%w: %d", ErrUnsupportedCassetteFormat, CassetteFormatVersion)
-	}
-	c.nextInteractionId = len(c.Interactions)
-
-	return c, err
-}
+func LoadWithFS(name string, fs FS) (*Cassette, error) { _ = "STUB: not implemented"; return nil, nil }
 
 // AddInteraction appends a new interaction to the cassette
-func (c *Cassette) AddInteraction(i *Interaction) {
-	c.Lock()
-	defer c.Unlock()
-	i.ID = c.nextInteractionId
-	c.nextInteractionId += 1
-	c.Interactions = append(c.Interactions, i)
-}
+func (c *Cassette) AddInteraction(i *Interaction) { _ = "STUB: not implemented"; return }
 
 // GetInteraction retrieves a recorded request/response interaction
 func (c *Cassette) GetInteraction(r *http.Request) (*Interaction, error) {
-	return c.getInteraction(r)
+	_ = "STUB: not implemented"
+	return nil,
+
+		// getInteraction searches for the interaction corresponding to the given HTTP
+		// request, by using the configured [MatcherFunc].
+		nil
 }
 
-// getInteraction searches for the interaction corresponding to the given HTTP
-// request, by using the configured [MatcherFunc].
 func (c *Cassette) getInteraction(r *http.Request) (*Interaction, error) {
-	c.Lock()
-	defer c.Unlock()
-	if r.Body == nil {
-		// causes an error in the matcher when we try to do r.ParseForm if r.Body is nil
-		// r.ParseForm returns missing form body error
-		r.Body = http.NoBody
-	}
-	replayed := 0
-	for _, i := range c.Interactions {
-		if i.replayed {
-			replayed++
-		}
-		if (c.ReplayableInteractions || !i.replayed) && c.Matcher(r, i.Request) {
-			i.replayed = true
-			return i, nil
-		}
-	}
-	return nil, ErrInteractionNotFound
+	_ = "STUB: not implemented"
+	return nil, nil
 }
+
+// causes an error in the matcher when we try to do r.ParseForm if r.Body is nil
+// r.ParseForm returns missing form body error
 
 // Save writes the cassette data on disk for future re-use
-func (c *Cassette) Save() error {
-	return c.SaveWithFS(NewDiskFS())
-}
+func (c *Cassette) Save() error { _ = "STUB: not implemented"; return nil }
 
 // SaveWithFS writes the cassette data on abstract filesystem for future re-use
-func (c *Cassette) SaveWithFS(fs FS) error {
-	c.Lock()
-	defer c.Unlock()
+func (c *Cassette) SaveWithFS(fs FS) error { _ = "STUB: not implemented"; return nil }
 
-	// Filter out interactions which should be discarded. While discarding
-	// interactions we should also fix the interaction IDs, so that we don't
-	// introduce gaps in the final results.
-	nextId := 0
-	interactions := make([]*Interaction, 0)
-	for _, i := range c.Interactions {
-		if !i.DiscardOnSave {
-			i.ID = nextId
-			interactions = append(interactions, i)
-			nextId += 1
-		}
-	}
-	c.Interactions = interactions
+// Filter out interactions which should be discarded. While discarding
+// interactions we should also fix the interaction IDs, so that we don't
+// introduce gaps in the final results.
 
-	// Marshal to YAML and save interactions
-	data, err := c.MarshalFunc(c)
-	if err != nil {
-		return err
-	}
+// Marshal to YAML and save interactions
 
-	// Honor the YAML structure specification
-	// http://www.yaml.org/spec/1.2/spec.html#id2760395
-	return fs.WriteFile(c.File, append([]byte("---\n"), data...))
-}
+// Honor the YAML structure specification
+// http://www.yaml.org/spec/1.2/spec.html#id2760395

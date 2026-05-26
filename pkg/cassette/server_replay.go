@@ -1,11 +1,8 @@
 package cassette
 
 import (
-	"fmt"
-	"maps"
 	"net/http"
 	"net/http/httptest"
-	"slices"
 	"testing"
 )
 
@@ -31,60 +28,21 @@ var DefaultReplayAssertFunc ReplayAssertFunc = func(t *testing.T, expected *Inte
 
 // TestServerReplay loads a Cassette and replays each Interaction with the provided Handler, then compares the response
 func TestServerReplay(t *testing.T, cassetteName string, handler http.Handler) {
-	t.Helper()
-	TestServerReplayWithFS(t, cassetteName, NewDiskFS(), handler)
+	_ = "STUB: not implemented"
+	return
 }
 
 // TestServerReplayWithFS loads a Cassette and replays each Interaction with the provided Handler, then compares the response.
 // Function reads replay from abstract file system.
 func TestServerReplayWithFS(t *testing.T, cassetteName string, fs FS, handler http.Handler) {
-	t.Helper()
-
-	c, err := LoadWithFS(cassetteName, fs)
-	if err != nil {
-		t.Errorf("unexpected error loading Cassette: %v", err)
-	}
-
-	if len(c.Interactions) == 0 {
-		t.Error("no interactions in Cassette")
-	}
-
-	for _, interaction := range c.Interactions {
-		t.Run(
-			fmt.Sprintf("Interaction_%d", interaction.ID), func(t *testing.T) {
-				TestInteractionReplay(t, handler, interaction)
-			},
-		)
-	}
+	_ = "STUB: not implemented"
+	return
 }
 
 // TestInteractionReplay replays an Interaction with the provided Handler and compares the response
 func TestInteractionReplay(t *testing.T, handler http.Handler, interaction *Interaction) {
-	t.Helper()
-
-	req, err := interaction.GetHTTPRequest()
-	if err != nil {
-		t.Errorf("unexpected error getting interaction request: %v", err)
-	}
-
-	w := httptest.NewRecorder()
-	handler.ServeHTTP(w, req)
-
-	DefaultReplayAssertFunc(t, interaction, w)
+	_ = "STUB: not implemented"
+	return
 }
 
-func headersEqual(expected, actual http.Header) bool {
-	return maps.EqualFunc(
-		expected, actual,
-		func(v1, v2 []string) bool {
-			slices.Sort(v1)
-			slices.Sort(v2)
-
-			if !slices.Equal(v1, v2) {
-				return false
-			}
-
-			return true
-		},
-	)
-}
+func headersEqual(expected, actual http.Header) bool { _ = "STUB: not implemented"; return false }

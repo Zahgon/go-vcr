@@ -24,11 +24,6 @@
 
 package cassette
 
-import (
-	"os"
-	"path/filepath"
-)
-
 // FS defines a generic filesystem interface.
 // It allows to redefine storage without depending on a specific filesystem implementation.
 type FS interface {
@@ -43,35 +38,12 @@ type FS interface {
 }
 
 // NewDiskFS creates and returns a new FS implementation backed by the local disk filesystem.
-func NewDiskFS() FS {
-	return &diskFS{}
-}
+func NewDiskFS() FS { _ = "STUB: not implemented"; return *new(FS) }
 
 type diskFS struct{}
 
-func (fs *diskFS) ReadFile(name string) ([]byte, error) {
-	return os.ReadFile(name)
-}
+func (fs *diskFS) ReadFile(name string) ([]byte, error) { _ = "STUB: not implemented"; return nil, nil }
 
-func (fs *diskFS) WriteFile(name string, data []byte) error {
-	cassetteDir := filepath.Dir(name)
-	if _, err := os.Stat(cassetteDir); os.IsNotExist(err) {
-		if err = os.MkdirAll(cassetteDir, 0o755); err != nil {
-			return err
-		}
-	}
+func (fs *diskFS) WriteFile(name string, data []byte) error { _ = "STUB: not implemented"; return nil }
 
-	f, err := os.Create(name)
-	if err != nil {
-		return err
-	}
-
-	defer f.Close()
-	_, err = f.Write(data)
-	return err
-}
-
-func (fs *diskFS) IsFileExists(name string) bool {
-	_, err := os.Stat(name)
-	return !os.IsNotExist(err)
-}
+func (fs *diskFS) IsFileExists(name string) bool { _ = "STUB: not implemented"; return false }

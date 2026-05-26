@@ -26,16 +26,9 @@
 package recorder
 
 import (
-	"bufio"
-	"bytes"
 	"errors"
-	"fmt"
-	"io"
 	"net/http"
-	"net/http/httputil"
-	"time"
 
-	"go.yaml.in/yaml/v4"
 	"gopkg.in/dnaeon/go-vcr.v4/pkg/cassette"
 )
 
@@ -131,14 +124,7 @@ type Hook struct {
 }
 
 // NewHook creates a new hook.
-func NewHook(handler HookFunc, kind HookKind) *Hook {
-	hook := &Hook{
-		Handler: handler,
-		Kind:    kind,
-	}
-
-	return hook
-}
+func NewHook(handler HookFunc, kind HookKind) *Hook { _ = "STUB: not implemented"; return nil }
 
 // PassthroughFunc is a predicate which determines whether a specific HTTP
 // request is to be forwarded to the original endpoint. It should return true
@@ -155,16 +141,8 @@ type blockUnsafeMethodsRoundTripper struct {
 }
 
 func (r *blockUnsafeMethodsRoundTripper) RoundTrip(req *http.Request) (*http.Response, error) {
-	safeMethods := map[string]bool{
-		http.MethodGet:     true,
-		http.MethodHead:    true,
-		http.MethodOptions: true,
-		http.MethodTrace:   true,
-	}
-	if _, ok := safeMethods[req.Method]; !ok {
-		return nil, ErrUnsafeRequestMethod
-	}
-	return r.RoundTripper.RoundTrip(req)
+	_ = "STUB: not implemented"
+	return nil, nil
 }
 
 // Recorder represents a type used to record and replay client and server
@@ -219,448 +197,186 @@ type Option func(r *Recorder)
 
 // WithMode is an [Option], which configures the [Recorder] to run in the
 // specified mode.
-func WithMode(mode Mode) Option {
-	opt := func(r *Recorder) {
-		r.mode = mode
-	}
-
-	return opt
-}
+func WithMode(mode Mode) Option { _ = "STUB: not implemented"; return *new(Option) }
 
 // WithRealTransport is an [Option], which configures the [Recorder] to use the
 // specified [http.RoundTripper] when making actual HTTP requests.
-func WithRealTransport(rt http.RoundTripper) Option {
-	opt := func(r *Recorder) {
-		r.realTransport = rt
-	}
-
-	return opt
-}
+func WithRealTransport(rt http.RoundTripper) Option { _ = "STUB: not implemented"; return *new(Option) }
 
 // WithBlockUnsafeMethods is an [Option], which configures the [Recorder] to
 // block HTTP requests, which are not considered "Safe Methods", according to
 // RFC 9110, section 9.2.1.
-func WithBlockUnsafeMethods(val bool) Option {
-	opt := func(r *Recorder) {
-		r.blockUnsafeMethods = val
-	}
-
-	return opt
-}
+func WithBlockUnsafeMethods(val bool) Option { _ = "STUB: not implemented"; return *new(Option) }
 
 // WithSkipRequestLatency is an [Option], which configures the [Recorder] whether
 // to simulate the latency of the recorded interaction. When set to false it
 // will block for the period of time taken by the original request to simulate
 // the latency between the recorder and the remote endpoints.
-func WithSkipRequestLatency(val bool) Option {
-	opt := func(r *Recorder) {
-		r.skipRequestLatency = val
-	}
-
-	return opt
-}
+func WithSkipRequestLatency(val bool) Option { _ = "STUB: not implemented"; return *new(Option) }
 
 // WithPassthrough is an [Option], which configures the [Recorder] to
 // passthrough requests for requests which satisfy the provided
 // [PassthroughFunc] predicate.
 func WithPassthrough(passfunc PassthroughFunc) Option {
-	opt := func(r *Recorder) {
-		r.passthroughs = append(r.passthroughs, passfunc)
-	}
-
-	return opt
+	_ = "STUB: not implemented"
+	return *new(Option)
 }
 
 // WithHook is an [Option], which configures the [Recorder] to invoke the
 // provided hook at the specified playback stage.
 func WithHook(handler HookFunc, kind HookKind) Option {
-	opt := func(r *Recorder) {
-		hook := NewHook(handler, kind)
-		r.hooks = append(r.hooks, hook)
-	}
-
-	return opt
+	_ = "STUB: not implemented"
+	return *new(Option)
 }
 
 // WithMatchers is an [Option], which configures the [Recorder] to use the
 // provided [MatcherFunc] predicate when matching HTTP requests against record
 // interactions.
-func WithMatcher(matcher MatcherFunc) Option {
-	opt := func(r *Recorder) {
-		r.matcher = matcher
-	}
-
-	return opt
-}
+func WithMatcher(matcher MatcherFunc) Option { _ = "STUB: not implemented"; return *new(Option) }
 
 // WithReplayableInteractions is an [Option], which configures the [Recorder] to
 // allow replaying interactions multiple times. This is useful in situations
 // when you need to hit the same endpoint multiple times and want to replay the
 // interaction from the cassette each time.
-func WithReplayableInteractions(val bool) Option {
-	opt := func(r *Recorder) {
-		r.replayableInteractions = val
-	}
-
-	return opt
-}
+func WithReplayableInteractions(val bool) Option { _ = "STUB: not implemented"; return *new(Option) }
 
 // WithFS is an [Option], which configures the [Recorder] to use
 // custom filesystem ([cassette.FS]) implementation. This allows the [Recorder] to use any
 // FS-compatible backend (e.g., local disk, in-memory, or mock) for reading and writing files.
-func WithFS(fs cassette.FS) Option {
-	opt := func(r *Recorder) {
-		r.fs = fs
-	}
-
-	return opt
-}
+func WithFS(fs cassette.FS) Option { _ = "STUB: not implemented"; return *new(Option) }
 
 // WithMarshalFunc is an [Option], which configures the [Recorder] to use
 // custom YAML marshal func. This allows customization of the YAML encoding
 // process, such as setting string literal style, etc.
 func WithMarshalFunc(marshalFunc cassette.MarshalFunc) Option {
-	return func(r *Recorder) {
-		r.marshalFunc = marshalFunc
-	}
+	_ = "STUB: not implemented"
+	return *new(Option)
 }
 
 // New creates a new [Recorder] and configures it using the provided options.
 func New(cassetteName string, opts ...Option) (*Recorder, error) {
-	r := &Recorder{
-		cassetteName:           cassetteName,
-		mode:                   ModeRecordOnce,
-		realTransport:          http.DefaultTransport,
-		passthroughs:           make([]PassthroughFunc, 0),
-		hooks:                  make([]*Hook, 0),
-		blockUnsafeMethods:     false,
-		skipRequestLatency:     false,
-		matcher:                cassette.DefaultMatcher,
-		replayableInteractions: false,
-		fs:                     cassette.NewDiskFS(),
-		marshalFunc:            yaml.Marshal,
-	}
-
-	for _, opt := range opts {
-		opt(r)
-	}
-
-	// Configure the cassette based on the recorder configuration
-	c, err := r.getCassette()
-	if err != nil {
-		return nil, err
-	}
-	r.cassette = c
-	r.cassette.Matcher = r.matcher
-	r.cassette.ReplayableInteractions = r.replayableInteractions
-	r.cassette.MarshalFunc = r.marshalFunc
-
-	return r, nil
+	_ = "STUB: not implemented"
+	return nil, nil
 }
+
+// Configure the cassette based on the recorder configuration
 
 // getCassette creates a new [*cassette.Cassette], or loads an already existing
 // one depending on the mode of the recorder.
 func (rec *Recorder) getCassette() (*cassette.Cassette, error) {
-	if rec.cassetteName == "" {
-		return nil, ErrNoCassetteName
-	}
-
-	// Create or the cassette depending on the mode we are operating in.
-	cassetteFile := cassette.New(rec.cassetteName).File
-	cassetteExists := rec.fs.IsFileExists(cassetteFile)
-
-	switch {
-	case rec.mode == ModeRecordOnly:
-		return cassette.New(rec.cassetteName), nil
-	case rec.mode == ModeReplayOnly && !cassetteExists:
-		return nil, fmt.Errorf("%w: %s", cassette.ErrCassetteNotFound, cassetteFile)
-	case rec.mode == ModeReplayOnly && cassetteExists:
-		return cassette.LoadWithFS(rec.cassetteName, rec.fs)
-	case rec.mode == ModeReplayWithNewEpisodes && !cassetteExists:
-		return cassette.New(rec.cassetteName), nil
-	case rec.mode == ModeReplayWithNewEpisodes && cassetteExists:
-		return cassette.LoadWithFS(rec.cassetteName, rec.fs)
-	case rec.mode == ModeRecordOnce && !cassetteExists:
-		return cassette.New(rec.cassetteName), nil
-	case rec.mode == ModeRecordOnce && cassetteExists:
-		return cassette.LoadWithFS(rec.cassetteName, rec.fs)
-	case rec.mode == ModePassthrough:
-		return cassette.New(rec.cassetteName), nil
-	default:
-		return nil, ErrInvalidMode
-	}
+	_ = "STUB: not implemented"
+	return nil, nil
 }
+
+// Create or the cassette depending on the mode we are operating in.
 
 // getRoundTripper returns the [http.RoundTripper] used by the recorder.
 func (rec *Recorder) getRoundTripper() http.RoundTripper {
-	if rec.blockUnsafeMethods {
-		return &blockUnsafeMethodsRoundTripper{
-			RoundTripper: rec.realTransport,
-		}
-	}
-
-	return rec.realTransport
+	_ = "STUB: not implemented"
+	return *new(http.RoundTripper)
 }
 
 // requestHandler proxies requests to their original destination
 // If serverResponse is provided, this is used for the recording instead of using RoundTrip
 func (rec *Recorder) requestHandler(r *http.Request, serverResponse *http.Response) (*cassette.Interaction, error) {
-	if err := r.Context().Err(); err != nil {
-		return nil, err
-	}
-
-	switch {
-	case rec.mode == ModeReplayOnly:
-		return rec.cassette.GetInteraction(r)
-	case rec.mode == ModeReplayWithNewEpisodes:
-		interaction, err := rec.cassette.GetInteraction(r)
-		if err == nil {
-			// Interaction found, return it
-			return interaction, nil
-		} else if errors.Is(err, cassette.ErrInteractionNotFound) {
-			// Interaction not found, we have a new episode
-			break
-		} else {
-			// Any other error is an error
-			return nil, err
-		}
-	case rec.mode == ModeRecordOnce && !rec.cassette.IsNew:
-		// We've got an existing cassette, return what we've got
-		return rec.cassette.GetInteraction(r)
-	case rec.mode == ModePassthrough:
-		// Passthrough requests always hit the original endpoint
-		break
-	case (rec.mode == ModeRecordOnly || rec.mode == ModeRecordOnce) && rec.cassette.ReplayableInteractions:
-		// When running with replayable interactions look for existing
-		// interaction first, so we avoid hitting multiple times the
-		// same endpoint.
-		interaction, err := rec.cassette.GetInteraction(r)
-		if err == nil {
-			// Interaction found, return it
-			return interaction, nil
-		} else if errors.Is(err, cassette.ErrInteractionNotFound) {
-			// Interaction not found, we have to record it
-			break
-		} else {
-			// Any other error is an error
-			return nil, err
-		}
-	default:
-		// Anything else hits the original endpoint
-		break
-	}
-
-	// Copy the original request, so we can read the form values
-	reqBytes, err := httputil.DumpRequestOut(r, true)
-	if err != nil {
-		return nil, err
-	}
-
-	reqBuffer := bytes.NewBuffer(reqBytes)
-	copiedReq, err := http.ReadRequest(bufio.NewReader(reqBuffer))
-	if err != nil {
-		return nil, err
-	}
-
-	err = copiedReq.ParseForm()
-	if err != nil {
-		return nil, err
-	}
-
-	reqBody := &bytes.Buffer{}
-	if r.Body != nil && r.Body != http.NoBody {
-		// Record the request body so we can add it to the cassette
-		r.Body = io.NopCloser(io.TeeReader(r.Body, reqBody))
-		if serverResponse != nil {
-			// when serverResponse is provided by middleware, it has to be read in order
-			// for reqBody buffer to be populated
-			_, _ = io.ReadAll(r.Body)
-		}
-	}
-
-	// Perform request to it's original destination and record the interactions
-	// If serverResponse is provided, use it instead
-	var start time.Time
-	start = time.Now()
-	resp := serverResponse
-	if resp == nil {
-		resp, err = rec.getRoundTripper().RoundTrip(r)
-		if err != nil {
-			return nil, err
-		}
-	}
-	requestDuration := time.Since(start)
-	defer resp.Body.Close()
-
-	respBody, err := io.ReadAll(resp.Body)
-	if err != nil {
-		return nil, err
-	}
-
-	// Add interaction to the cassette
-	interaction := &cassette.Interaction{
-		Request: cassette.Request{
-			Proto:            r.Proto,
-			ProtoMajor:       r.ProtoMajor,
-			ProtoMinor:       r.ProtoMinor,
-			ContentLength:    r.ContentLength,
-			TransferEncoding: r.TransferEncoding,
-			Trailer:          r.Trailer,
-			Host:             r.Host,
-			RemoteAddr:       r.RemoteAddr,
-			RequestURI:       r.RequestURI,
-			Body:             reqBody.String(),
-			Form:             copiedReq.Form,
-			Headers:          r.Header,
-			URL:              r.URL.String(),
-			Method:           r.Method,
-		},
-		Response: cassette.Response{
-			Status:           resp.Status,
-			Code:             resp.StatusCode,
-			Proto:            resp.Proto,
-			ProtoMajor:       resp.ProtoMajor,
-			ProtoMinor:       resp.ProtoMinor,
-			TransferEncoding: resp.TransferEncoding,
-			Trailer:          resp.Trailer,
-			ContentLength:    resp.ContentLength,
-			Uncompressed:     resp.Uncompressed,
-			Body:             string(respBody),
-			Headers:          resp.Header,
-			Duration:         requestDuration,
-		},
-	}
-
-	// Apply after-capture hooks before we add the interaction to
-	// the in-memory cassette.
-	if err := rec.applyHooks(interaction, AfterCaptureHook); err != nil {
-		return nil, err
-	}
-
-	rec.cassette.AddInteraction(interaction)
-
-	return interaction, nil
+	_ = "STUB: not implemented"
+	return nil, nil
 }
+
+// Interaction found, return it
+
+// Interaction not found, we have a new episode
+
+// Any other error is an error
+
+// We've got an existing cassette, return what we've got
+
+// Passthrough requests always hit the original endpoint
+
+// When running with replayable interactions look for existing
+// interaction first, so we avoid hitting multiple times the
+// same endpoint.
+
+// Interaction found, return it
+
+// Interaction not found, we have to record it
+
+// Any other error is an error
+
+// Anything else hits the original endpoint
+
+// Copy the original request, so we can read the form values
+
+// Record the request body so we can add it to the cassette
+
+// when serverResponse is provided by middleware, it has to be read in order
+// for reqBody buffer to be populated
+
+// Perform request to it's original destination and record the interactions
+// If serverResponse is provided, use it instead
+
+// Add interaction to the cassette
+
+// Apply after-capture hooks before we add the interaction to
+// the in-memory cassette.
 
 // Stop is used to stop the recorder and save any recorded
 // interactions if running in one of the recording modes. When
 // running in ModePassthrough no cassette will be saved on disk.
-func (rec *Recorder) Stop() error {
-	cassetteFile := rec.cassette.File
-	cassetteExists := rec.fs.IsFileExists(cassetteFile)
+func (rec *Recorder) Stop() error { _ = "STUB: not implemented"; return nil }
 
-	// Nothing to do for ModeReplayOnly and ModePassthrough here
-	switch {
-	case rec.mode == ModeRecordOnly || rec.mode == ModeReplayWithNewEpisodes:
-		if err := rec.persistCassette(); err != nil {
-			return err
-		}
+// Nothing to do for ModeReplayOnly and ModePassthrough here
 
-	case rec.mode == ModeRecordOnce && !cassetteExists:
-		if err := rec.persistCassette(); err != nil {
-			return err
-		}
-	}
-
-	// Apply on-recorder-stop hooks
-	for _, interaction := range rec.cassette.Interactions {
-		if err := rec.applyHooks(interaction, OnRecorderStopHook); err != nil {
-			return err
-		}
-	}
-
-	return nil
-}
+// Apply on-recorder-stop hooks
 
 // persisteCassette persists the cassette on disk for future re-use
 func (rec *Recorder) persistCassette() error {
+	_ = "STUB: not implemented"
 	// Apply any before-save hooks
-	for _, interaction := range rec.cassette.Interactions {
-		if err := rec.applyHooks(interaction, BeforeSaveHook); err != nil {
-			return err
-		}
-	}
-
-	return rec.cassette.SaveWithFS(rec.fs)
+	return nil
 }
 
 // applyHooks applies the registered hooks of the given kind with the
 // specified interaction
 func (rec *Recorder) applyHooks(i *cassette.Interaction, kind HookKind) error {
-	for _, hook := range rec.hooks {
-		if hook.Kind == kind {
-			if err := hook.Handler(i); err != nil {
-				return err
-			}
-		}
-	}
-
+	_ = "STUB: not implemented"
 	return nil
 }
 
 // RoundTrip implements the [http.RoundTripper] interface
 func (rec *Recorder) RoundTrip(req *http.Request) (*http.Response, error) {
-	return rec.executeAndRecord(req, nil)
+	_ = "STUB: not implemented"
+	return nil, nil
 }
 
 // executeAndRecord is used internally by the HTTPMiddleware to allow recording a response on the server side
 func (rec *Recorder) executeAndRecord(req *http.Request, serverResponse *http.Response) (*http.Response, error) {
+	_ = "STUB: not implemented"
 	// Passthrough mode, use real transport
-	if rec.mode == ModePassthrough {
-		return rec.getRoundTripper().RoundTrip(req)
-	}
-
-	// Apply passthrough handler functions
-	for _, passthroughFunc := range rec.passthroughs {
-		if passthroughFunc(req) {
-			return rec.getRoundTripper().RoundTrip(req)
-		}
-	}
-
-	interaction, err := rec.requestHandler(req, serverResponse)
-	if err != nil {
-		return nil, err
-	}
-
-	// Apply before-response-replay hooks
-	if err := rec.applyHooks(interaction, BeforeResponseReplayHook); err != nil {
-		return nil, err
-	}
-
-	select {
-	case <-req.Context().Done():
-		return nil, req.Context().Err()
-	default:
-		// Apply the duration defined in the interaction
-		if !rec.skipRequestLatency {
-			<-time.After(interaction.Response.Duration)
-		}
-
-		return interaction.GetHTTPResponse()
-	}
+	return nil, nil
 }
+
+// Apply passthrough handler functions
+
+// Apply before-response-replay hooks
+
+// Apply the duration defined in the interaction
 
 // Mode returns recorder state
 func (rec *Recorder) Mode() Mode {
-	return rec.mode
+	_ = "STUB: not implemented"
+
+	// GetDefaultClient returns an HTTP client with a pre-configured
+	// transport
+	return *new(Mode)
 }
 
-// GetDefaultClient returns an HTTP client with a pre-configured
-// transport
-func (rec *Recorder) GetDefaultClient() *http.Client {
-	client := &http.Client{
-		Transport: rec,
-	}
-
-	return client
-}
+func (rec *Recorder) GetDefaultClient() *http.Client { _ = "STUB: not implemented"; return nil }
 
 // IsNewCassette returns true, if the recorder was started with a
 // new/empty cassette. Returns false, if it was started using an
 // existing cassette, which was loaded.
-func (rec *Recorder) IsNewCassette() bool {
-	return rec.cassette.IsNew
-}
+func (rec *Recorder) IsNewCassette() bool { _ = "STUB: not implemented"; return false }
 
 // IsRecording returns true, if the recorder is recording
 // interactions, returns false otherwise. Note, that in some modes
@@ -672,15 +388,4 @@ func (rec *Recorder) IsNewCassette() bool {
 // present in the cassette, but will also record new ones, if they are
 // not part of the cassette already. In these cases the recorder is
 // considered to be recording for these modes.
-func (rec *Recorder) IsRecording() bool {
-	switch {
-	case rec.mode == ModeRecordOnly || rec.mode == ModeReplayWithNewEpisodes:
-		return true
-	case rec.mode == ModeReplayOnly || rec.mode == ModePassthrough:
-		return false
-	case rec.mode == ModeRecordOnce && rec.IsNewCassette():
-		return true
-	default:
-		return false
-	}
-}
+func (rec *Recorder) IsRecording() bool { _ = "STUB: not implemented"; return false }
